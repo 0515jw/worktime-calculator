@@ -5,7 +5,6 @@
     <title>IGT 잔여 근로시간 계산기</title>
 
     <style>
-
         body {
             font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
             background-color: #f4f7f6;
@@ -28,7 +27,7 @@
         }
 
         .input-group {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
 
         label {
@@ -42,20 +41,30 @@
         .desc {
             font-size: 12px;
             color: #7f8c8d;
-            margin-bottom: 5px;
+            margin-bottom: 10px;
         }
 
-        input {
-            width: 100%;
+        /* 시간/분 입력을 가로로 배치하기 위한 스타일 */
+        .time-input-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .time-input-container input {
+            width: 80px;
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 5px;
             box-sizing: border-box;
             font-size: 15px;
+            text-align: right;
         }
 
-        input::placeholder {
-            color: #bdc3c7;
+        .time-input-container span {
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 14px;
         }
 
         hr {
@@ -97,12 +106,6 @@
             font-weight: bold;
             color: #c0392b;
         }
-
-        .download-guide {
-            text-align: center;
-            margin-bottom: 25px;
-        }
-
     </style>
 </head>
 
@@ -112,72 +115,48 @@
 
     <h2>⏳IGT 잔여 소정 근로시간 계산기⏳</h2>
 
-    <div class="desc download-guide">
-        근태 메뉴 → 우측 상단 '목록 다운로드' → 개인의 근태 엑셀표 다운로드
-    </div>
-
     <div class="input-group">
         <label>1. 월 기준 근로(소정근로)시간 입력</label>
         <div class="desc">
-            해당 월의 근무일수 x 8시간의 값을 입력하세요
+            해당 월의 근무일수 x 8시간의 값을 입력하세요<br>
             (근태 바에서 점선 아래의 값)
         </div>
-
-        <input type="number"
-               id="base_hours"
-               placeholder="160">
+        <div class="time-input-container">
+            <input type="number" id="base_h" min="0" placeholder="0"> <span>시간</span>
+            <input type="number" id="base_m" min="0" max="59" placeholder="0"> <span>분</span>
+        </div>
     </div>
 
     <div class="input-group">
-        <label>2. 잔여 근무일수 입력</label>
-
+        <label>2. 소정 근로시간 입력</label>
         <div class="desc">
-            [내 근태현황]에 뜨는 '잔여 근무일' 입력
-            (예: 5)
+            [근태] → [월간] → [소정근로시간]
         </div>
-
-        <input type="number"
-               id="remaining_days"
-               placeholder="5">
+        <div class="time-input-container">
+            <input type="number" id="worked_h" min="0" placeholder="0"> <span>시간</span>
+            <input type="number" id="worked_m" min="0" max="59" placeholder="0"> <span>분</span>
+        </div>
     </div>
 
     <div class="input-group">
-        <label>3. 총 근로시간 입력</label>
-
+        <label>3. 휴가 입력</label>
         <div class="desc">
-            엑셀(I열)에서 값 복사
-            (예: 120:30:00)
+            [근태] → [월간] → [휴가]
         </div>
-
-        <input type="text"
-               id="total_work"
-               placeholder="00:00:00">
+        <div class="time-input-container">
+            <input type="number" id="vaca_h" min="0" placeholder="0"> <span>시간</span>
+            <input type="number" id="vaca_m" min="0" max="59" placeholder="0"> <span>분</span>
+        </div>
     </div>
 
     <div class="input-group">
-        <label>4. 초과근로시간 입력</label>
-
+        <label>4. 잔여 근무일수 입력</label>
         <div class="desc">
-            엑셀(J열)에서 값 복사
-            (예: 05:00:00)
+            [근태] → [잔여 근무일] (예: 5)
         </div>
-
-        <input type="text"
-               id="total_overtime"
-               placeholder="00:00:00">
-    </div>
-
-    <div class="input-group">
-        <label>5. 휴가시간 입력</label>
-
-        <div class="desc">
-            엑셀(P열)에서 값 복사
-            (예: 08:00:00)
+        <div class="time-input-container">
+            <input type="number" id="r_days" min="0" placeholder="0" style="width: 100px;"> <span>일</span>
         </div>
-
-        <input type="text"
-               id="total_vacation"
-               placeholder="00:00:00">
     </div>
 
     <hr>
@@ -186,111 +165,69 @@
         결과 계산하기
     </button>
 
-    <div id="result_display"
-         class="result-box">
+    <div id="result_display" class="result-box">
     </div>
 
 </div>
 
 <script>
-
-function timeToSeconds(timeStr) {
-
-    if (!timeStr) return 0;
-
-    let parts = timeStr.trim().split(':');
-
-    if (parts.length !== 3) return 0;
-
-    return (
-        parseInt(parts[0]) * 3600 +
-        parseInt(parts[1]) * 60 +
-        parseInt(parts[2])
-    );
-}
-
+// 초(second)를 시간, 분, 초 텍스트로 변환하는 함수
 function secondsToTimeText(totalSeconds) {
-
     if (totalSeconds <= 0) {
         return "0시간 0분 0초";
     }
 
     let h = Math.floor(totalSeconds / 3600);
-
     let m = Math.floor((totalSeconds % 3600) / 60);
-
     let s = Math.floor(totalSeconds % 60);
 
     return `${h}시간 ${m}분 ${s}초`;
 }
 
 function calculateHours() {
+    // 1. 월 기준 근로시간 가져오기 (초 단위 변환)
+    let base_h = parseInt(document.getElementById('base_h').value) || 0;
+    let base_m = parseInt(document.getElementById('base_m').value) || 0;
+    let base_sec = (base_h * 3600) + (base_m * 60);
 
-    let base_h =
-        parseFloat(document.getElementById('base_hours').value) || 0;
+    // 2. 소정 근로시간 가져오기 (초 단위 변환)
+    let worked_h = parseInt(document.getElementById('worked_h').value) || 0;
+    let worked_m = parseInt(document.getElementById('worked_m').value) || 0;
+    let worked_sec = (worked_h * 3600) + (worked_m * 60);
 
-    let r_days =
-        parseInt(document.getElementById('remaining_days').value) || 0;
+    // 3. 휴가 시간 가져오기 (초 단위 변환)
+    let vaca_h = parseInt(document.getElementById('vaca_h').value) || 0;
+    let vaca_m = parseInt(document.getElementById('vaca_m').value) || 0;
+    let vaca_sec = (vaca_h * 3600) + (vaca_m * 60);
 
-    let t_work =
-        document.getElementById('total_work').value || "00:00:00";
-
-    let t_over =
-        document.getElementById('total_overtime').value || "00:00:00";
-
-    let t_vaca =
-        document.getElementById('total_vacation').value || "00:00:00";
-
-    let base_sec = base_h * 3600;
-
-    let work_sec = timeToSeconds(t_work);
-
-    let over_sec = timeToSeconds(t_over);
-
-    let vaca_sec = timeToSeconds(t_vaca);
+    // 4. 잔여 근무일수 가져오기
+    let r_days = parseInt(document.getElementById('r_days').value) || 0;
 
     /*
-        최종 계산식
-
-        잔여 근로시간 =
-        월 기준 근로시간
-        - 총 근로시간
-        + 초과근로시간
-        - 휴가시간
+        최종 계산식: 
+        잔여 근로시간 = 월 소정근로시간 - 소정근로시간 - 휴가
     */
-
-    let remaining_sec =
-        base_sec
-        - work_sec
-        + over_sec
-        - vaca_sec;
+    let remaining_sec = base_sec - worked_sec - vaca_sec;
 
     let resultHTML = "";
 
     if (remaining_sec <= 0) {
-
         resultHTML =
             "축하합니다! 이번 달 기준 근로시간을 모두 채우셨습니다.<br>" +
             "<strong>당신의 잔여 근로시간은 0시간 0분 0초 입니다.</strong>";
-
     } else {
-
         resultHTML =
             `당신의 잔여 근로시간은 ` +
             `<span class="highlight">${secondsToTimeText(remaining_sec)}</span>` +
             ` 입니다.<br><br>`;
 
         if (r_days > 0) {
-
             let daily_sec = remaining_sec / r_days;
-
             resultHTML +=
                 `앞으로 <strong>${r_days}일</strong> 동안 하루 평균 ` +
                 `<span class="highlight">${secondsToTimeText(daily_sec)}</span>` +
                 ` 정도를 일해야 합니다.`;
-
         } else {
-
             resultHTML +=
                 `<span style="font-size:12px; color:#7f8c8d;">` +
                 `* 잔여 근무일수를 입력하시면 하루 평균 필요한 근무시간도 알려드립니다.` +
@@ -298,14 +235,10 @@ function calculateHours() {
         }
     }
 
-    let resultBox =
-        document.getElementById('result_display');
-
+    let resultBox = document.getElementById('result_display');
     resultBox.innerHTML = resultHTML;
-
     resultBox.style.display = "block";
 }
-
 </script>
 
 </body>
