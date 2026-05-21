@@ -23,7 +23,15 @@
         h2 {
             text-align: center;
             color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        .calculator-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
             margin-bottom: 25px;
+            display: block;
         }
 
         .input-group {
@@ -115,6 +123,8 @@
 
     <h2>⏳IGT 잔여 소정 근로시간 계산기⏳</h2>
 
+    <img src="https://github.com/user-attachments/assets/fafb5e9b-de23-414f-ae07-bd5db22081b4" alt="근태 입력 가이드 이미지" class="calculator-image">
+
     <div class="input-group">
         <label>1. 월 기준 근로(소정근로)시간 입력</label>
         <div class="desc">
@@ -152,7 +162,7 @@
     <div class="input-group">
         <label>4. 잔여 근무일수 입력</label>
         <div class="desc">
-            [근태] → [잔여 근무일] 
+            [근태] → [잔여 근무일] (예: 5)
         </div>
         <div class="time-input-container">
             <input type="number" id="r_days" min="0" placeholder="0" style="width: 100px;"> <span>일</span>
@@ -243,3 +253,5 @@ function calculateHours() {
 
 </body>
 </html>
+
+```
