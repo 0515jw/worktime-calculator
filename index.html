@@ -34,31 +34,29 @@
         <div class="desc">해당 월의 근무일수 x 8시간의 값을 입력하세요 (근태 바에서 점선 아래의 값)</div>
         <input type="number" id="base_hours" placeholder="160">
     </div>
-
+    
     <div class="input-group">
-        <label>2. 총 근로시간 입력</label>
+        <label>2. 잔여 근무일수 입력</label>
+        <div class="desc">남은 근무 일수를 입력하면 하루 평균 필요한 근무시간을 계산합니다. (예: 5)</div>
+        <input type="number" id="remaining_days" placeholder="5">
+    </div>
+    
+    <div class="input-group">
+        <label>3. 총 근로시간 입력</label>
         <div class="desc">엑셀(I열)에서 값 복사 (예: 120:30:00)</div>
         <input type="text" id="total_work" placeholder="00:00:00">
     </div>
 
     <div class="input-group">
-        <label>3. 초과근로시간 입력</label>
+        <label>4. 초과근로시간 입력</label>
         <div class="desc">엑셀(J열)에서 값 복사 (예: 05:00:00)</div>
         <input type="text" id="total_overtime" placeholder="00:00:00">
     </div>
 
     <div class="input-group">
-      <label>4. 휴가시간 입력</label>
+      <label>5. 휴가시간 입력</label>
       <div class="desc">엑셀(P열)에서 값 복사 (예: 08:00:00)</div>
       <input type="text" id="total_vacation" placeholder="00:00:00">
-    </div>
-
-    <hr>
-
-    <div class="input-group">
-        <label>5. 남은 근무 일수 동안 필요한 평균 근무 시간</label>
-        <div class="desc">남은 근무 일수를 입력하면 하루 평균 필요한 근무시간을 계산합니다. (예: 5)</div>
-        <input type="number" id="remaining_days" placeholder="5">
     </div>
 
     <button onclick="calculateHours()">결과 계산하기</button>
